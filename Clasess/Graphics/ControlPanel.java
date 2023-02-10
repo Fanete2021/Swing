@@ -4,6 +4,7 @@ import Clasess.Core.Utils;
 import Clasess.Emitter.ActionControl;
 import Clasess.Emitter.Actions;
 import Clasess.Emitter.Emitter;
+import Clasess.Emitter.Events;
 import Clasess.Entity.Bike;
 import Clasess.Entity.Car;
 
@@ -17,7 +18,7 @@ import java.util.Vector;
 
 public class ControlPanel extends JPanel {
     private final Emitter emitter;
-    private final Button start, stop;
+    private final Button start, stop, currentTransports;
     private final ButtonGroup bgTime;
     private final JLabel timeLabel;
     private final JRadioButton showTime, hideTime;
@@ -26,6 +27,7 @@ public class ControlPanel extends JPanel {
     private final String DEFAULT_TIME = "100";
     private final JComboBox frequencyCar;
     private final JList frequencyBike;
+    private final JTextField lifetimeCar, lifetimeBike;
 
     public ControlPanel(int width, int height, Emitter emitter) {
         super();
@@ -34,14 +36,18 @@ public class ControlPanel extends JPanel {
         setLayout(null);
         
         this.emitter = emitter;
-        emitter.subscribe("Screen:Menu", this::triggerAction);
-        emitter.subscribe("Habitat", this::triggerAction);
+        emitter.subscribe(Events.HABITAT.getTitle(), this::triggerAction);
+        emitter.subscribe(Events.MENU.getTitle(), this::triggerAction);
 
         start = new Button("Старт", 20, 20, getStartActionListener());
         add(start);
         stop = new Button("Стоп", 140, 20, getStopActionListener());
         stop.setEnabled(false);
         add(stop);
+        currentTransports = new Button("Текущие объекты", 260, 20, getShowCurrentTransportActionListener());
+        currentTransports.setBounds(280, 20, 200, 50);
+        currentTransports.setEnabled(false);
+        add(currentTransports);
 
         bgTime = new ButtonGroup();
         showTime = new JRadioButton("Показать время");
@@ -69,10 +75,11 @@ public class ControlPanel extends JPanel {
         customizeTextFieldAndAddToPanel("Время генерации мотоцикла", 250, 220,
                 timeSpawnBike, 305, 250, getTimeSpawnBikeActionListener());
 
+        Vector<String> percentages = Utils.generatePercentages(0, 100, 10);
+
         JLabel infoFrequencyCar = new JLabel("Шанс генерации машины");
         infoFrequencyCar.setBounds(20, 280, 200, 20);
         add(infoFrequencyCar);
-        Vector<String> percentages = Utils.generatePercentages(10, 100, 10);
         frequencyCar = new JComboBox(percentages);
         frequencyCar.setMaximumRowCount(5);
         frequencyCar.setBounds(75, 310, 70, 20);
@@ -84,10 +91,21 @@ public class ControlPanel extends JPanel {
         infoFrequencyBike.setBounds(250, 280, 200, 20);
         add(infoFrequencyBike);
         frequencyBike = new JList(percentages);
-        frequencyBike.setBounds(305, 310, 40, 180);
+        frequencyBike.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        frequencyBike.setVisibleRowCount(2);
+        frequencyBike.setBounds(250, 310, 200, 40);
+        frequencyBike.setBackground(null);
         frequencyBike.setSelectedIndex(4);
         frequencyBike.addListSelectionListener(getFrequencyBikeSelectionListener());
         add(frequencyBike);
+
+        lifetimeCar = new JTextField("5000");
+        customizeTextFieldAndAddToPanel("Время жизни машины", 20, 370,
+                lifetimeCar, 75, 400, getLifetimeCarActionListener());
+
+        lifetimeBike = new JTextField("3000");
+        customizeTextFieldAndAddToPanel("Время жизни мотоцикла", 250, 370,
+                lifetimeBike, 305, 400, getLifetimeBikeActionListener());
     }
 
     private void triggerAction(ActionControl actionControl) {
@@ -97,7 +115,8 @@ public class ControlPanel extends JPanel {
                 switchButton();
                 break;
             case UPDATE_TIME:
-                UpdateTime(actionControl.state);
+                String time = Utils.toStringTime(actionControl.state);
+                timeLabel.setText("Прошло времени: " + time + "с");
                 break;
             case HIDE_TIME:
                 timeLabel.setVisible(false);
@@ -123,7 +142,7 @@ public class ControlPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 switchButton();
                 ActionControl action = new ActionControl(Actions.START);
-                emitter.emit("Screen:Control", action);
+                emitter.emit(Events.CONTROL.getTitle(), action);
             }
         };
     }
@@ -134,7 +153,17 @@ public class ControlPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 switchButton();
                 ActionControl action = new ActionControl(Actions.STOP);
-                emitter.emit("Screen:Control", action);
+                emitter.emit(Events.CONTROL.getTitle(), action);
+            }
+        };
+    }
+
+    private ActionListener getShowCurrentTransportActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ActionControl action = new ActionControl(Actions.SHOW_CURRENT_TRANSPORT);
+                emitter.emit(Events.CONTROL.getTitle(), action);
             }
         };
     }
@@ -143,9 +172,11 @@ public class ControlPanel extends JPanel {
         if (start.isEnabled()) {
             start.setEnabled(false);
             stop.setEnabled(true);
+            currentTransports.setEnabled(true);
         } else {
             start.setEnabled(true);
             stop.setEnabled(false);
+            currentTransports.setEnabled(false);
         }
     }
 
@@ -164,7 +195,7 @@ public class ControlPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 timeLabel.setVisible(true);
                 ActionControl action = new ActionControl(Actions.SHOW_TIME);
-                emitter.emit("Screen:Control", action);
+                emitter.emit(Events.CONTROL.getTitle(), action);
             }
         };
     }
@@ -175,16 +206,9 @@ public class ControlPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 timeLabel.setVisible(false);
                 ActionControl action = new ActionControl(Actions.HIDE_TIME);
-                emitter.emit("Screen:Control", action);
+                emitter.emit(Events.CONTROL.getTitle(), action);
             }
         };
-    }
-
-    private void UpdateTime(int time) {
-        int seconds = time / 1000;
-        int ms = time % 1000;
-
-        timeLabel.setText("Прошло времени: " + seconds + "." + ms / 100 + "с");
     }
 
     private ActionListener getStatsActionListener() {
@@ -193,7 +217,7 @@ public class ControlPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 Actions action = stats.isSelected() ? Actions.SHOW_STATS : Actions.HIDE_STATS;
                 ActionControl actionControl = new ActionControl(action);
-                emitter.emit("Screen:Control", actionControl);
+                emitter.emit(Events.CONTROL.getTitle(), actionControl);
             }
         };
     }
@@ -238,24 +262,6 @@ public class ControlPanel extends JPanel {
         };
     }
 
-    private boolean checkErrorFromSpawnField(JTextField field) {
-        int value = 100;
-
-        try {
-            value = Integer.parseInt(field.getText());
-        } catch (NumberFormatException ex) {
-            ErrorModal error = new ErrorModal("Вы ввели символ");
-            return true;
-        }
-
-        if (field.getText().length() < 3) {
-            ErrorModal error = new ErrorModal("Вы не можете вводить меньше 3 цифр");
-            return true;
-        }
-
-        return false;
-    }
-
     private ActionListener getFrequencyCarActionListener() {
         return new ActionListener() {
             @Override
@@ -275,5 +281,53 @@ public class ControlPanel extends JPanel {
                 }
             }
         };
+    }
+
+    private ActionListener getLifetimeCarActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!checkErrorFromSpawnField(lifetimeCar)) {
+                    int value = Integer.parseInt(lifetimeCar.getText());
+                    ActionControl actionControl = new ActionControl(Actions.CHANGE_LIFETIME_CAR, value);
+                    emitter.emit(Events.CONTROL.getTitle(), actionControl);
+                } else {
+                    lifetimeCar.setText(DEFAULT_TIME);
+                }
+            }
+        };
+    }
+
+    private ActionListener getLifetimeBikeActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!checkErrorFromSpawnField(lifetimeBike)) {
+                    int value = Integer.parseInt(lifetimeBike.getText());
+                    ActionControl actionControl = new ActionControl(Actions.CHANGE_LIFETIME_BIKE, value);
+                    emitter.emit(Events.CONTROL.getTitle(), actionControl);
+                } else {
+                    lifetimeBike.setText(DEFAULT_TIME);
+                }
+            }
+        };
+    }
+
+    private boolean checkErrorFromSpawnField(JTextField field) {
+        int value = 100;
+
+        try {
+            value = Integer.parseInt(field.getText());
+        } catch (NumberFormatException ex) {
+            ErrorModal error = new ErrorModal("Вы ввели символ");
+            return true;
+        }
+
+        if (field.getText().length() < 3) {
+            ErrorModal error = new ErrorModal("Вы не можете вводить меньше 3 цифр");
+            return true;
+        }
+
+        return false;
     }
 }

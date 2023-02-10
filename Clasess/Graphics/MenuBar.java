@@ -3,6 +3,7 @@ package Clasess.Graphics;
 import Clasess.Emitter.ActionControl;
 import Clasess.Emitter.Actions;
 import Clasess.Emitter.Emitter;
+import Clasess.Emitter.Events;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -15,8 +16,8 @@ public class MenuBar extends JMenuBar {
 
     public MenuBar(Emitter emitter) {
         this.emitter = emitter;
-        emitter.subscribe("Screen:Control", this::triggerAction);
-        emitter.subscribe("Habitat", this::triggerAction);
+        emitter.subscribe(Events.CONTROL.getTitle(), this::triggerAction);
+        emitter.subscribe(Events.HABITAT.getTitle(), this::triggerAction);
 
         JMenu actions = new JMenu("Действия");
 
@@ -68,8 +69,7 @@ public class MenuBar extends JMenuBar {
             public void actionPerformed(ActionEvent e) {
                 switchButton();
                 ActionControl action = new ActionControl(Actions.START);
-                emitter.emit("Screen:Control", action);
-                emitter.emit("Habitat", action);
+                emitter.emit(Events.MENU.getTitle(), action);
             }
         };
     }
@@ -80,7 +80,7 @@ public class MenuBar extends JMenuBar {
             public void actionPerformed(ActionEvent e) {
                 switchButton();
                 ActionControl action = new ActionControl(Actions.STOP);
-                emitter.emit("Screen:Menu", action);
+                emitter.emit(Events.MENU.getTitle(), action);
             }
         };
     }
@@ -91,7 +91,7 @@ public class MenuBar extends JMenuBar {
             public void actionPerformed(ActionEvent e) {
                 Actions action = time.isSelected() ? Actions.SHOW_TIME : Actions.HIDE_TIME;
                 ActionControl actionControl = new ActionControl(action);
-                emitter.emit("Screen:Menu", actionControl);
+                emitter.emit(Events.MENU.getTitle(), actionControl);
             }
         };
     }
@@ -102,7 +102,7 @@ public class MenuBar extends JMenuBar {
             public void actionPerformed(ActionEvent e) {
                 Actions action = stats.isSelected() ? Actions.SHOW_STATS : Actions.HIDE_STATS;
                 ActionControl actionControl = new ActionControl(action);
-                emitter.emit("Screen:Menu", actionControl);
+                emitter.emit(Events.MENU.getTitle(), actionControl);
             }
         };
     }

@@ -28,6 +28,10 @@ public class TransportsPanel extends JPanel {
         transportsLabels.add(transport);
     }
 
+    public void removeTransport(TransportLabel transport) {
+        remove(transport);
+    }
+
     public void removeTransports() {
         for (int i = 0; i < transportsLabels.size(); i++) {
             remove(transportsLabels.get(i));

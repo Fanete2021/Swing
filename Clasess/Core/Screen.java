@@ -1,12 +1,16 @@
-package Clasess.Graphics;
+package Clasess.Core;
 
 import Clasess.Emitter.Emitter;
+import Clasess.Graphics.ControlPanel;
+import Clasess.Graphics.MenuBar;
+import Clasess.Graphics.TransportLabel;
+import Clasess.Graphics.TransportsPanel;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class Screen extends JFrame {
-    private final MenuBar menu;
+    private final Clasess.Graphics.MenuBar menu;
     private final TransportsPanel transports;
     private final ControlPanel control;
     private int width, height;
@@ -43,6 +47,11 @@ public class Screen extends JFrame {
 
     public void addToTransportsPanel(TransportLabel transport) {
         transports.addTransport(transport);
+        repaint();
+    }
+
+    public void removeTransport(TransportLabel transport) {
+        transports.removeTransport(transport);
         repaint();
     }
 
