@@ -1,34 +1,49 @@
 package Clasess.Entity;
 
+
+import Clasess.Core.Utils;
+import Clasess.Emitter.ActionControl;
+import Clasess.Emitter.Emitter;
+import Clasess.Emitter.Events;
+import Interfaces.IBehaviour;
+
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
-public abstract class Transport {
-    public int x, y;
+public abstract class Transport implements IBehaviour {
+    protected int x, y;
+    protected int timeBirth, lifetime;
+    protected int id;
 
-    public Transport(int x, int y) {
-        setX(x);
-        setY(y);
+    public Transport(int x, int y, int timeBirth, int lifetime) {
+        this.x = x;
+        this.y = y;
+        this.timeBirth = timeBirth;
+        this.lifetime = lifetime;
+
+        id = Utils.generateInteger(Integer.MAX_VALUE, 0);
     }
 
     public abstract Image getImage();
 
-    public static float getFrequency() {
-        return 0.0f;
+    public int getTimeBirth() {
+        return timeBirth;
     }
 
-    public int getX() {
-        return x;
+    public int getLifetime() {
+        return lifetime;
     }
 
-    public int getY() {
-        return y;
+    public void setTimeBirth(int timeBirth) {
+        this.timeBirth = timeBirth;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setLifetime(int lifetime) {
+        this.lifetime = lifetime;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public int getId() {
+        return id;
     }
 }

@@ -14,29 +14,17 @@ import static java.awt.Font.SERIF;
 
 public class StatsModal extends JDialog {
     private final Button ok, cancel;
-    private JTextArea statistics;
+    private TextArea statistics;
     private Emitter emitter;
 
-    public StatsModal(JFrame parent, String title, String text, Emitter emitter) {
+    public StatsModal(JFrame parent, String title, String stats, Emitter emitter) {
         super(parent, title, true);
         this.emitter = emitter;
         setLayout(null);
-        Font customFont = Font.getFont(SERIF);
 
-        try {
-            InputStream is = getClass().getResourceAsStream("/fonts/Old-Soviet.otf");
-            customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(24f);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            ge.registerFont(customFont);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        statistics = new JTextArea(text);
+        statistics = new TextArea(stats, 24f);
         statistics.setBounds(10, 10, 400, 290);
-        statistics.setEditable(false);
-        statistics.setFont(customFont);
-        statistics.setBackground(null);
+
         ok = new Button("ОК", 50, 300, getOkActionListener());
         cancel = new Button("Отмена", 250, 300, getCancelActionListener());
 
