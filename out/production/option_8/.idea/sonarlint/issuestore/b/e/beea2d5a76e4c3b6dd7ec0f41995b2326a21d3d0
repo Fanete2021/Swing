@@ -1,0 +1,66 @@
+
+J
+java:S3740"/Provide the parametrized type for this generic.(Ğ¡ƒÔùÿÿÿÿ
+J
+java:S3740"/Provide the parametrized type for this generic.(ÄÀûÀøÿÿÿÿ
+J
+java:S3740T"/Provide the parametrized type for this generic.(Ş÷Š¾ùÿÿÿÿ
+E
+java:S3740^"/Provide the parametrized type for this generic.(˜ ”ç
+X
+java:S6208h"CMerge the previous cases into this one using comma-separated label.(™£/
+k
+java:S1192†"ODefine a constant instead of duplicating this literal "Screen:Control" 5 times.(Œøÿÿÿÿÿ
+D
+java:S1604"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+D
+java:S1604Œ"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+D
+java:S1604ª"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+D
+java:S1604µ"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+D
+java:S1604Ç"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+D
+java:S1604Ò"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+D
+java:S1604à"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+D
+java:S1604€"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+K
+java:S1604Š"(Make this anonymous inner class a lambda(š†óŸüÿÿÿÿ8õ®å¿ã0
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ŒªÍßùÿÿÿÿ
+k	java:S116"WRename this field "DEFAULT_TIME" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÓßŒr
+6
+java:S1170"!Make this final field static too.(ÓßŒr
+?
+java:S1659""Declare "stop" on a separate line.(³Êş¯8»İƒÀã0
+A
+java:S1659"&Declare "hideTime" on a separate line.(‡õğàıÿÿÿÿ
+F
+java:S1659"+Declare "timeSpawnBike" on a separate line.(ˆ¦ºšûÿÿÿÿ
+D
+java:S1948")Make "emitter" transient or serializable.(Æ’İÇøÿÿÿÿ
+z
+java:S1149S"eReplace the synchronized class "Vector" by an unsynchronized one such as "ArrayList" or "LinkedList".(Ç§h
+i	java:S100¿"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ÀÕëƒøÿÿÿÿ
+L
+java:S2696×"6Make the enclosing method "static" or remove this set.(á÷ês
+M
+java:S2696å"6Make the enclosing method "static" or remove this set.(Õ†œŒ
+O
+java:S1854ó"9Remove this useless assignment to local variable "error".(Ñ¬‘Z
+U
+java:S1854ñ"9Remove this useless assignment to local variable "value".(æöş°ûÿÿÿÿ
+P
+java:S1854ø"9Remove this useless assignment to local variable "error".(®èä”
+A
+java:S1481î"*Remove this unused "value" local variable.(øÏ¸½
+@
+java:S1481ó"*Remove this unused "error" local variable.(Ñ¬‘Z
+A
+java:S1481ø"*Remove this unused "error" local variable.(®èä”
+R
+java:S2696„"6Make the enclosing method "static" or remove this set.(Ğêƒüÿÿÿÿ
+T
+java:S2696"6Make the enclosing method "static" or remove this set.(Å‹ô8Ğå¿ã0

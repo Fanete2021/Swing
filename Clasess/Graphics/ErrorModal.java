@@ -12,8 +12,8 @@ public class ErrorModal extends JDialog {
         setTitle("Ошибка");
         setLayout(null);
 
-        error = new TextArea(textError, 14f);
-        error.setBounds(50, 10, 150, 100);
+        error = new TextArea(textError, 12f);
+        error.setBounds(10, 10, 190, 100);
 
         ok = new Button("ОК", 50, 110, getOkActionListener());
 

@@ -4,7 +4,6 @@ import Clasess.Entity.Transport;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 
 public class TransportLabel extends JLabel
 {
@@ -19,5 +18,12 @@ public class TransportLabel extends JLabel
         Image image = transport.getImage().getScaledInstance(WIDTH, HEIGHT, Image.SCALE_SMOOTH);
         setIcon(new ImageIcon(image));
         setBounds(transport.getX(), transport.getY(), WIDTH, HEIGHT);
+    }
+
+    public void setCoordinates(int x, int y) {
+        transport.setX(x);
+        transport.setY(y);
+
+        setBounds(x, y, WIDTH, HEIGHT);
     }
 }

@@ -1,0 +1,22 @@
+
+_
+java:S6208+"CMerge the previous cases into this one using comma-separated label.(™£/8È¶²¼ã0
+n
+java:S1192P"LDefine a constant instead of duplicating this literal "Screen:Menu" 3 times.(›•»ëøÿÿÿÿ8ª¤¹»ã0
+C
+java:S1604?"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+C
+java:S1604K"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+C
+java:S1604V"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+C
+java:S1604a"(Make this anonymous inner class a lambda(¶Ä„”şÿÿÿÿ
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ŒªÍßùÿÿÿÿ
+=
+java:S1659""Declare "stop" on a separate line.(Ìáşâşÿÿÿÿ
+9
+java:S1659"#Declare "stats" on a separate line.(ì´Ú¢
+?
+java:S1948")Make "emitter" transient or serializable.(›ñ®œ
+9
+java:S11162"Remove this empty statement.(Û™¸ª8Ú«µ¼ã0

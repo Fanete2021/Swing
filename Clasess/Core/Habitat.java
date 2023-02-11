@@ -4,10 +4,7 @@ import Clasess.Emitter.ActionControl;
 import Clasess.Emitter.Actions;
 import Clasess.Emitter.Emitter;
 import Clasess.Emitter.Events;
-import Clasess.Entity.Bike;
-import Clasess.Entity.Car;
-import Clasess.Entity.Transport;
-import Clasess.Entity.TransportFactory;
+import Clasess.Entity.*;
 import Clasess.Graphics.CurrentObjectModal;
 import Clasess.Graphics.StatsModal;
 import Clasess.Graphics.TransportLabel;
@@ -15,9 +12,10 @@ import Clasess.Graphics.TransportLabel;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.*;
+import java.util.List;
 
 public class Habitat {
-    private final ArrayList<TransportLabel> transportList;
+    private final List<TransportLabel> transportList;
     private final HashSet<Integer> transportIds;
     private final TreeMap<Integer, Integer> transportLifetime;
     private final Screen screen;
@@ -27,8 +25,20 @@ public class Habitat {
     private final Emitter emitter;
     private int lifetimeCar, lifetimeBike;
     private final CurrentObjectModal objectModal;
+    private CarAI carAI;
+    private BikeAI bikeAI;
 
     public Habitat(int width, int height, long time) {
+        simulationTime = 0L;
+        lifetimeCar = 5000;
+        lifetimeBike = 3000;
+        this.time = time;
+
+        transportList = Collections.synchronizedList(new ArrayList<>());
+        transportIds = new HashSet<>();
+        transportLifetime = new TreeMap<>();
+        objectModal = new CurrentObjectModal("Текущие объекты", createInfoObjects());
+
         emitter = new Emitter();
         emitter.subscribe(Events.CONTROL.getTitle(), this::triggerAction);
         emitter.subscribe(Events.MENU.getTitle(), this::triggerAction);
@@ -37,15 +47,10 @@ public class Habitat {
         isVisibleTime = false;
         isVisibleStats = false;
 
-        transportList = new ArrayList<>();
-        transportIds = new HashSet<>();
-        transportLifetime = new TreeMap<>();
-        objectModal = new CurrentObjectModal(screen, "Текущие объекты", createInfoObjects());
-
-        simulationTime = 0L;
-        lifetimeCar = 5000;
-        lifetimeBike = 3000;
-        this.time = time;
+        carAI = new CarAI(transportList, screen.getWidthTransportsPanel());
+        bikeAI = new BikeAI(transportList, screen.getHeightTransportsPanel());
+        carAI.start();
+        bikeAI.start();
     }
 
     private void triggerAction(ActionControl actionControl) {
@@ -79,6 +84,31 @@ public class Habitat {
                 break;
             case SHOW_CURRENT_TRANSPORT:
                 objectModal.setVisible(true);
+                break;
+            case MOVEMENT_CAR_TRUE:
+                Car.isMoving = true;
+                synchronized (carAI.lock) {
+                    carAI.lock.notify();
+                }
+                break;
+            case MOVEMENT_CAR_FALSE:
+                Car.isMoving = false;
+                break;
+            case MOVEMENT_BIKE_TRUE:
+                Bike.isMoving = true;
+                synchronized (bikeAI.lock) {
+                    bikeAI.lock.notify();
+                }
+                break;
+            case MOVEMENT_BIKE_FALSE:
+                Bike.isMoving = false;
+                break;
+            case CHANGE_PRIORITY_THREAD_BIKE:
+                bikeAI.setPriority(actionControl.state);
+                break;
+            case CHANGE_PRIORITY_THREAD_CAR:
+                carAI.setPriority(actionControl.state);
+                break;
             default: break;
         }
     }
@@ -116,7 +146,6 @@ public class Habitat {
     private void init() {
         timer = new Timer();
         simulationTime = 0L;
-
         long period = 100;
 
         timer.schedule(new TimerTask() {
@@ -133,34 +162,32 @@ public class Habitat {
 
     private void updateScreen(long currentTime) {
         checkLifetimeAndDelete();
-        spawnTransport(currentTime);
-
-        if (objectModal != null && objectModal.isVisible()) {
-            objectModal.updateText(createInfoObjects());
-        }
+        spawnTransports();
 
         if (currentTime == time) {
             stopSimulation();
+            System.out.println(currentTime + " " + time);
         }
     }
 
     private void checkLifetimeAndDelete() {
         for (int i = 0; i < transportList.size(); i++) {
-            TransportLabel label = transportList.get(i);
-            Transport transport = label.transport;
+            TransportLabel canvas = transportList.get(i);
+            Transport transport = canvas.transport;
             int time = transport.getTimeBirth() + transport.getLifetime();
 
             if (time <= simulationTime) {
                 transportLifetime.remove(transport.getId());
                 transportIds.remove(transport.getId());
-                screen.removeTransport(label);
+                screen.removeTransport(canvas);
                 transportList.remove(i);
                 i--;
+                objectModal.updateText(createInfoObjects());
             }
         }
     }
 
-    private void spawnTransport(long currentTime) {
+    private void spawnTransports() {
         int[] lifetimes = {
                 lifetimeCar,
                 lifetimeBike
@@ -174,7 +201,7 @@ public class Habitat {
         int minX = 150, minY = 150;
 
         for (int i = 0; i < transportClasses.length; i++) {
-            if (currentTime != 0 && currentTime % transportClasses[i].getGenerationTime() == 0
+            if (simulationTime != 0 && simulationTime % transportClasses[i].getGenerationTime() == 0
                     && Utils.checkChance(transportClasses[i].getFrequency())) {
 
                 int x = Utils.generateInteger(width - 2 * minX, minX);
@@ -182,6 +209,7 @@ public class Habitat {
 
                 Transport transport = transportClasses[i].createTransport(x, y, (int)simulationTime, lifetimes[i]);
                 createTransportLabelAndAddToScreen(transport);
+                objectModal.updateText(createInfoObjects());
             }
         }
     }

@@ -28,6 +28,8 @@ public class ControlPanel extends JPanel {
     private final JComboBox frequencyCar;
     private final JList frequencyBike;
     private final JTextField lifetimeCar, lifetimeBike;
+    private final JCheckBox movementCar, movementBike;
+    private final JComboBox priorityCar, priorityBike;
 
     public ControlPanel(int width, int height, Emitter emitter) {
         super();
@@ -106,6 +108,42 @@ public class ControlPanel extends JPanel {
         lifetimeBike = new JTextField("3000");
         customizeTextFieldAndAddToPanel("Время жизни мотоцикла", 250, 370,
                 lifetimeBike, 305, 400, getLifetimeBikeActionListener());
+
+        movementCar = new JCheckBox("Движение машин");
+        movementCar.setBounds(20, 450, 200, 20);
+        movementCar.setFocusPainted(false);
+        movementCar.setSelected(true);
+        movementCar.addActionListener(getMovementCarActionListener());
+        add(movementCar);
+
+        movementBike = new JCheckBox("Движение мотоциклов");
+        movementBike.setBounds(240, 450, 200, 20);
+        movementBike.setFocusPainted(false);
+        movementBike.setSelected(true);
+        movementBike.addActionListener(getMovementBikeActionListener());
+        add(movementBike);
+
+        Vector<String> priority = Utils.generatePercentages(1, 6, 1);
+
+        JLabel infoPriorityCar = new JLabel("Приоритет потока для машин");
+        infoFrequencyCar.setBounds(20, 500, 200, 20);
+        add(infoFrequencyCar);
+        priorityCar = new JComboBox(priority);
+        priorityCar.setMaximumRowCount(3);
+        priorityCar.setBounds(75, 530, 70, 20);
+        priorityCar.setSelectedIndex(0);
+        priorityCar.addActionListener(getPriorityCarActionListener());
+        add(priorityCar);
+
+        JLabel infoPriorityBike = new JLabel("Приоритет потока для машин");
+        infoPriorityBike.setBounds(220, 500, 200, 20);
+        add(infoPriorityBike);
+        priorityBike = new JComboBox(priority);
+        priorityBike.setMaximumRowCount(3);
+        priorityBike.setBounds(275, 530, 70, 20);
+        priorityBike.setSelectedIndex(0);
+        priorityBike.addActionListener(getPriorityBikeActionListener());
+        add(priorityBike);
     }
 
     private void triggerAction(ActionControl actionControl) {
@@ -329,5 +367,49 @@ public class ControlPanel extends JPanel {
         }
 
         return false;
+    }
+
+    private ActionListener getMovementCarActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Actions action = movementCar.isSelected() ? Actions.MOVEMENT_CAR_TRUE : Actions.MOVEMENT_CAR_FALSE;
+                ActionControl actionControl = new ActionControl(action);
+                emitter.emit(Events.CONTROL.getTitle(), actionControl);
+            }
+        };
+    }
+
+    private ActionListener getMovementBikeActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Actions action = movementBike.isSelected() ? Actions.MOVEMENT_BIKE_TRUE : Actions.MOVEMENT_BIKE_FALSE;
+                ActionControl actionControl = new ActionControl(action);
+                emitter.emit(Events.CONTROL.getTitle(), actionControl);
+            }
+        };
+    }
+
+    private ActionListener getPriorityCarActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int priority = (int)(Utils.parsePercentages((String)priorityCar.getSelectedItem()) * 100);
+                ActionControl actionControl = new ActionControl(Actions.CHANGE_PRIORITY_THREAD_CAR, priority);
+                emitter.emit(Events.CONTROL.getTitle(), actionControl);
+            }
+        };
+    }
+
+    private ActionListener getPriorityBikeActionListener() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int priority = (int)(Utils.parsePercentages((String)priorityBike.getSelectedItem()) * 100);
+                ActionControl actionControl = new ActionControl(Actions.CHANGE_PRIORITY_THREAD_BIKE, priority);
+                emitter.emit(Events.CONTROL.getTitle(), actionControl);
+            }
+        };
     }
 }

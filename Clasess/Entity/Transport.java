@@ -2,30 +2,34 @@ package Clasess.Entity;
 
 
 import Clasess.Core.Utils;
-import Clasess.Emitter.ActionControl;
-import Clasess.Emitter.Emitter;
-import Clasess.Emitter.Events;
-import Interfaces.IBehaviour;
 
 import java.awt.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
-public abstract class Transport implements IBehaviour {
+public abstract class Transport implements IMovable {
     protected int x, y;
     protected int timeBirth, lifetime;
     protected int id;
+    protected int speed;
 
     public Transport(int x, int y, int timeBirth, int lifetime) {
         this.x = x;
         this.y = y;
         this.timeBirth = timeBirth;
         this.lifetime = lifetime;
+        this.speed = 10;
 
         id = Utils.generateInteger(Integer.MAX_VALUE, 0);
     }
 
     public abstract Image getImage();
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
 
     public int getTimeBirth() {
         return timeBirth;
@@ -35,15 +39,15 @@ public abstract class Transport implements IBehaviour {
         return lifetime;
     }
 
-    public void setTimeBirth(int timeBirth) {
-        this.timeBirth = timeBirth;
-    }
-
-    public void setLifetime(int lifetime) {
-        this.lifetime = lifetime;
-    }
-
     public int getId() {
         return id;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 }

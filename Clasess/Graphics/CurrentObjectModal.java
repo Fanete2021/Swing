@@ -16,8 +16,8 @@ public class CurrentObjectModal extends JDialog {
     private final Button ok;
     private final TextArea statistics;
 
-    public CurrentObjectModal(JFrame parent, String title, String stats) {
-        super(parent, title, true);
+    public CurrentObjectModal(String title, String stats) {
+        setTitle(title);
         setLayout(null);
 
         statistics = new TextArea(stats, 11f);
@@ -37,7 +37,6 @@ public class CurrentObjectModal extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
-                dispose();
             }
         };
     }
