@@ -1,18 +1,0 @@
-
-l
-java:S1104"QMake image a static final constant or non-public and provide accessors if needed.(ÆÅÌêþÿÿÿÿ
-k
-java:S1104"UMake frequency a static final constant or non-public and provide accessors if needed.(åõ¡§
-u
-java:S1104"ZMake generationTime a static final constant or non-public and provide accessors if needed.(ç¦µÝøÿÿÿÿ
-g
-java:S1104"QMake count a static final constant or non-public and provide accessors if needed.(˜“ÿ±
-F
-java:S1444"+Make this "public static image" field final(ÆÅÌêþÿÿÿÿ
-E
-java:S1444"/Make this "public static frequency" field final(åõ¡§
-O
-java:S1444"4Make this "public static generationTime" field final(ç¦µÝøÿÿÿÿ
-A
-java:S1444"+Make this "public static count" field final(˜“ÿ±
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ÈŸÜ»úÿÿÿÿ

@@ -1,4 +1,4 @@
-package src.core;
+package src.utils;
 
 import java.util.Random;
 import java.util.Vector;

@@ -7,7 +7,7 @@ import java.util.List;
 public abstract class BaseAI extends Thread {
     protected final List<TransportLabel> transports;
     public Object lock;
-    public boolean isWorking = true;
+    public boolean isWorking = false;
 
     public BaseAI(List<TransportLabel> list) {
         transports = list;

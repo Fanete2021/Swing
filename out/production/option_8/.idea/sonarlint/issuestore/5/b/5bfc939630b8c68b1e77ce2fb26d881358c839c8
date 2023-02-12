@@ -1,10 +1,0 @@
-
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(ŒªÍßùÿÿÿÿ
-D
-java:S2387"."width" is the name of a field in "Component".(ô…ð­
-E
-java:S2387"/"height" is the name of a field in "Component".(ô…ð­
-:
-java:S1659"$Declare "height" on a separate line.(ô…ð­
-d
-java:S3252"IUse static access with "javax.swing.WindowConstants" for "EXIT_ON_CLOSE".(Õû»öþÿÿÿÿ

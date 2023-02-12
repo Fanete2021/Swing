@@ -1,5 +1,6 @@
 package src.view;
 
+import src.config.Configuration;
 import src.core.Emitter.Emitter;
 
 import javax.swing.*;
@@ -10,13 +11,13 @@ public class Screen extends JFrame {
     private final TransportsPanel transports;
     private final ControlPanel control;
 
-    public Screen(int width, int height, Emitter emitter) {
+    public Screen(int width, int height, Emitter emitter, Configuration config) {
         super("Транспортные средства");
         setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        menu = new MenuBar(emitter);
+        menu = new MenuBar(emitter, config);
         setJMenuBar(menu);
 
         int transportsWidth = getWidthTransportsPanel();
@@ -24,7 +25,7 @@ public class Screen extends JFrame {
 
         float coefWidthControl = 1 / 4f;
         int controlWidth = (int)(width * coefWidthControl);
-        control = new ControlPanel(controlWidth, height, emitter);
+        control = new ControlPanel(controlWidth, height, emitter, config);
 
         add(transports, BorderLayout.WEST);
         add(control, BorderLayout.EAST);

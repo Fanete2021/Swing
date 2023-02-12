@@ -28,12 +28,4 @@ public class Bike extends Transport {
             e.printStackTrace();
         }
     }
-
-    public int getX() {
-        return super.x;
-    }
-
-    public int getY() {
-        return super.y;
-    }
 }
