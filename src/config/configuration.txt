@@ -1,0 +1,13 @@
+#Mon Feb 13 02:26:11 NOVT 2023
+chanceGenerationBike=1.0
+chanceGenerationCar=1.0
+generationTimeBike=3
+generationTimeCar=3
+isMovingBike=false
+isMovingCar=false
+isShowStats=true
+isShowTime=true
+lifetimeBike=1
+lifetimeCar=1
+priorityThreadBike=0
+priorityThreadCar=0

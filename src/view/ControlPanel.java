@@ -1,6 +1,8 @@
 package src.view;
 
-import src.core.Utils;
+import src.config.Configuration;
+import src.config.Keys;
+import src.utils.Utils;
 import src.core.Emitter.ActionControl;
 import src.core.Emitter.Actions;
 import src.core.Emitter.Emitter;
@@ -14,6 +16,7 @@ import java.util.Vector;
 
 public class ControlPanel extends JPanel {
     private final Emitter emitter;
+    private final Configuration config;
     private JButton start, clear, currentTransports;
     private ButtonGroup bgTime;
     private JLabel timeLabel;
@@ -24,7 +27,7 @@ public class ControlPanel extends JPanel {
     private JComboBox frequencyCar, priorityCar, priorityBike;
     private JList frequencyBike;
 
-    public ControlPanel(int width, int height, Emitter emitter) {
+    public ControlPanel(int width, int height, Emitter emitter, Configuration config) {
         super();
         setBorder(BorderFactory.createLineBorder(Color.RED, 3));
         setPreferredSize(new Dimension(width, height));
@@ -35,12 +38,15 @@ public class ControlPanel extends JPanel {
         emitter.subscribe(Events.MENU, this::triggerAction);
         emitter.subscribe(Events.MODAL, this::triggerAction);
 
+        this.config = config;
+
         createButtons();
-        createRadioButtons();
 
         timeLabel = new JLabel("Прошло времени: 0.0с");
         timeLabel.setBounds(150, 150, 200, 20);
         add(timeLabel);
+
+        createRadioButtons();
 
         createCheckBox();
         createTextField();
@@ -97,17 +103,21 @@ public class ControlPanel extends JPanel {
         bgTime = new ButtonGroup();
 
         showTime = FactoryView.createRadioButton(bgTime, "Показать время", 20, 140);
-        showTime.setSelected(true);
         showTime.addActionListener(e -> {
             timeLabel.setVisible(true);
             emitter.notify(Events.CONTROL, Actions.IS_SHOW_TIME, true);
+            config.setProperty(Keys.IS_SHOW_TIME, "true");
         });
 
         hideTime = FactoryView.createRadioButton(bgTime, "Скрыть время", 20, 160);
         hideTime.addActionListener(e -> {
             timeLabel.setVisible(false);
             emitter.notify(Events.CONTROL, Actions.IS_SHOW_TIME, false);
+            config.setProperty(Keys.IS_SHOW_TIME, "false");
         });
+
+        boolean isShowTime = Boolean.parseBoolean(config.getProperty(Keys.IS_SHOW_TIME));
+        changeStateInfoTime(isShowTime);
 
         bgTime.add(showTime);
         bgTime.add(hideTime);
@@ -117,20 +127,27 @@ public class ControlPanel extends JPanel {
     }
 
     private void createCheckBox() {
-        stats = FactoryView.createCheckBox("Показать информацию", true, 20, 190);
-        stats.addActionListener(e ->
-                emitter.notify(Events.CONTROL, Actions.IS_SHOW_STATS, stats.isSelected())
-        );
+        boolean isShowStats = Boolean.parseBoolean(config.getProperty(Keys.IS_SHOW_STATS));
+        stats = FactoryView.createCheckBox("Показать информацию", isShowStats, 20, 190);
+        stats.addActionListener(e -> {
+            emitter.notify(Events.CONTROL, Actions.IS_SHOW_STATS, stats.isSelected());
+            config.setProperty(Keys.IS_SHOW_STATS, Boolean.toString(stats.isSelected()));
+        });
 
-        movementCar = FactoryView.createCheckBox("Движение машин", true, 20, 420);
-        movementCar.addActionListener(e ->
-                emitter.notify(Events.CONTROL, Actions.IS_MOVEMENT_CAR, movementCar.isSelected())
-        );
+        boolean isMovingCar = Boolean.parseBoolean(config.getProperty(Keys.IS_MOVING_CAR));
+        movementCar = FactoryView.createCheckBox("Движение машин", isMovingCar, 20, 420);
+        movementCar.addActionListener(e -> {
+            emitter.notify(Events.CONTROL, Actions.IS_MOVEMENT_CAR, movementCar.isSelected());
+            config.setProperty(Keys.IS_MOVING_CAR, Boolean.toString(movementCar.isSelected()));
+        });
 
-        movementBike = FactoryView.createCheckBox("Движение мотоциклов", true, 20, 440);
-        movementBike.addActionListener(e ->
-                emitter.notify(Events.CONTROL, Actions.IS_MOVEMENT_BIKE, movementBike.isSelected())
-        );
+        boolean isMovingBike = Boolean.parseBoolean(config.getProperty(Keys.IS_MOVING_BIKE));
+        movementBike = FactoryView.createCheckBox("Движение мотоциклов", isMovingBike, 20, 440);
+        movementBike.addActionListener(e -> {
+            emitter.notify(Events.CONTROL, Actions.IS_MOVEMENT_BIKE, movementBike.isSelected());
+            config.setProperty(Keys.IS_MOVING_BIKE, Boolean.toString(movementBike.isSelected()));
+        });
+
 
         add(stats);
         add(movementCar);
@@ -138,74 +155,87 @@ public class ControlPanel extends JPanel {
     }
 
     private void createTextField() {
-        timeSpawnCar = new JTextField(DEFAULT_TIME_SPAWN);
+        timeSpawnCar = new JTextField(config.getProperty(Keys.GENERATION_TIME_CAR));
         customizeTextFieldAndAddToPanel("Время генерации машины", 20, 220, timeSpawnCar);
         timeSpawnCar.addActionListener(e -> {
             if (!checkErrorFromField(timeSpawnCar)) {
                 float value = Float.parseFloat(timeSpawnCar.getText());
                 Car.generationTime = value;
+                config.setProperty(Keys.GENERATION_TIME_CAR, timeSpawnCar.getText());
             } else {
                 timeSpawnCar.setText(DEFAULT_TIME_SPAWN);
+                config.setProperty(Keys.GENERATION_TIME_CAR, DEFAULT_TIME_SPAWN);
             }
         });
 
-        timeSpawnBike = new JTextField(DEFAULT_TIME_SPAWN);
+        timeSpawnBike = new JTextField(config.getProperty(Keys.GENERATION_TIME_BIKE));
         customizeTextFieldAndAddToPanel("Время генерации мотоцикла", 20, 240, timeSpawnBike);
-        timeSpawnCar.addActionListener(e -> {
+        timeSpawnBike.addActionListener(e -> {
             if (!checkErrorFromField(timeSpawnBike)) {
                 float value = Float.parseFloat(timeSpawnBike.getText());
                 Bike.generationTime = value;
+                config.setProperty(Keys.GENERATION_TIME_BIKE, timeSpawnBike.getText());
             } else {
                 timeSpawnBike.setText(DEFAULT_TIME_SPAWN);
+                config.setProperty(Keys.GENERATION_TIME_BIKE, DEFAULT_TIME_SPAWN);
             }
         });
 
-        lifetimeCar = new JTextField("5");
+        lifetimeCar = new JTextField(config.getProperty(Keys.LIFE_TIME_CAR));
         customizeTextFieldAndAddToPanel("Время жизни машины", 20, 370, lifetimeCar);
-        lifetimeCar.addActionListener(e -> {
-            if (!checkErrorFromField(lifetimeCar)) {
-                float value = Float.parseFloat(lifetimeCar.getText());
-                emitter.notify(Events.CONTROL, Actions.CHANGE_LIFETIME_CAR, value);
-            } else {
-                lifetimeCar.setText(DEFAULT_TIME_SPAWN);
-            }
-        });
+        lifetimeCar.addActionListener(e ->
+            eventLifetimeField(lifetimeCar, Actions.CHANGE_LIFETIME_CAR, Keys.LIFE_TIME_CAR)
+        );
 
-        lifetimeBike = new JTextField("3");
+        lifetimeBike = new JTextField(config.getProperty(Keys.LIFE_TIME_BIKE));
         customizeTextFieldAndAddToPanel("Время жизни мотоцикла", 20, 390, lifetimeBike);
-        lifetimeCar.addActionListener(e -> {
-            if (!checkErrorFromField(lifetimeBike)) {
-                float value = Float.parseFloat(lifetimeBike.getText());
-                emitter.notify(Events.CONTROL, Actions.CHANGE_LIFETIME_BIKE, value);
-            } else {
-                lifetimeBike.setText(DEFAULT_TIME_SPAWN);
-            }
-        });
+        lifetimeBike.addActionListener(e ->
+            eventLifetimeField(lifetimeBike, Actions.CHANGE_LIFETIME_BIKE, Keys.LIFE_TIME_BIKE)
+        );
+    }
+
+    private void eventLifetimeField(JTextField field, Actions action, Keys key) {
+        if (!checkErrorFromField(field)) {
+            float value = Float.parseFloat(field.getText());
+            emitter.notify(Events.CONTROL, action, value);
+            config.setProperty(key, field.getText());
+        } else {
+            field.setText(DEFAULT_TIME_SPAWN);
+            config.setProperty(key, DEFAULT_TIME_SPAWN);
+        }
     }
 
     private void createComboBox() {
         Vector<String> percentages = Utils.generateRange(0, 100, 10, "%");
         Vector<String> priorities = Utils.generateRange(1, 6, 1, "");
+        int priorityThread;
         
         createDescriptionLabel("Шанс генерации машины", 20, 280);
-        frequencyCar = FactoryView.createComboBox(percentages, 200, 280, 9);
+        float chance = Float.parseFloat(config.getProperty(Keys.CHANCE_GENERATION_CAR));
+        int selectedIndex = (int)(chance * 10);
+        frequencyCar = FactoryView.createComboBox(percentages, 200, 280, selectedIndex);
         frequencyCar.addActionListener(e -> {
             float frequency = Utils.parsePercentages((String)frequencyCar.getSelectedItem());
             Car.frequency = frequency;
+            config.setProperty(Keys.CHANCE_GENERATION_CAR, Float.toString(frequency));
         });
 
         createDescriptionLabel("Приоритет потока машин", 20, 470);
-        priorityCar = FactoryView.createComboBox(priorities, 200, 470, 0);
+        priorityThread = Integer.parseInt(config.getProperty(Keys.PRIORITY_THREAD_CAR));
+        priorityCar = FactoryView.createComboBox(priorities, 200, 470, priorityThread);
         priorityCar.addActionListener(e -> {
-            int priority = (int)(Utils.parsePercentages((String)priorityCar.getSelectedItem()) * 100);
+            int priority = Integer.parseInt((String)priorityCar.getSelectedItem());
             emitter.notify(Events.CONTROL, Actions.CHANGE_PRIORITY_THREAD_CAR, priority);
+            config.setProperty(Keys.PRIORITY_THREAD_CAR, Integer.toString(priority - 1));
         });
 
         createDescriptionLabel("Приоритет потока мотоциклов", 20, 490);
-        priorityBike = FactoryView.createComboBox(priorities, 200, 490, 0);
+        priorityThread = Integer.parseInt(config.getProperty(Keys.PRIORITY_THREAD_BIKE));
+        priorityBike = FactoryView.createComboBox(priorities, 200, 490, priorityThread);
         priorityBike.addActionListener(e -> {
-            int priority = (int)(Utils.parsePercentages((String)priorityBike.getSelectedItem()) * 100);
+            int priority = Integer.parseInt((String)priorityBike.getSelectedItem());
             emitter.notify(Events.CONTROL, Actions.CHANGE_PRIORITY_THREAD_BIKE, priority);
+            config.setProperty(Keys.PRIORITY_THREAD_BIKE, Integer.toString(priority - 1));
         });
 
         add(frequencyCar);
@@ -222,11 +252,13 @@ public class ControlPanel extends JPanel {
         frequencyBike.setVisibleRowCount(2);
         frequencyBike.setBounds(20, 320, 200, 40);
         frequencyBike.setBackground(null);
-        frequencyBike.setSelectedIndex(4);
+        int selectedIndex = (int)(Float.parseFloat(config.getProperty(Keys.CHANCE_GENERATION_BIKE)) * 10);
+        frequencyBike.setSelectedIndex(selectedIndex);
         frequencyBike.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 float frequency = Utils.parsePercentages((String)frequencyBike.getSelectedValue());
                 Bike.frequency = frequency;
+                config.setProperty(Keys.CHANCE_GENERATION_BIKE, Float.toString(frequency));
             }
         });
 

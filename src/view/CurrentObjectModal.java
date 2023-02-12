@@ -16,11 +16,11 @@ public class CurrentObjectModal extends JDialog {
         ok.addActionListener(e -> setVisible(false));
 
         JScrollPane scroll = new JScrollPane(statistics);
-        scroll.setBounds(10, 10, 290, 240);
+        scroll.setBounds(10, 10, 320, 240);
         add(scroll);
         add(ok);
 
-        setSize(320, 350);
+        setSize(350, 350);
     }
 
     public void updateText(String text) {

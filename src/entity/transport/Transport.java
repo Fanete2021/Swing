@@ -1,12 +1,12 @@
 package src.entity.transport;
 
 
-import src.core.Utils;
-import src.entity.transport.IMovable;
+import src.utils.Utils;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public abstract class Transport implements IMovable {
+public abstract class Transport implements IMovable, Serializable {
     protected int x, y;
     protected float timeBirth, lifetime;
     protected int id;
@@ -32,8 +32,20 @@ public abstract class Transport implements IMovable {
         this.y = y;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
     public float getTimeBirth() {
         return timeBirth;
+    }
+
+    public void setTimeBirth(float time) {
+        timeBirth = time;
     }
 
     public float getLifetime() {

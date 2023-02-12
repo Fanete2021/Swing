@@ -1,5 +1,7 @@
 package src.core;
 
+import src.config.Configuration;
+import src.config.Keys;
 import src.core.Emitter.ActionControl;
 import src.core.Emitter.Actions;
 import src.core.Emitter.Emitter;
@@ -10,6 +12,9 @@ import src.entity.ai.BikeAI;
 import src.entity.transport.Car;
 import src.entity.transport.Transport;
 import src.entity.transport.TransportFactory;
+import src.utils.Serialization;
+import src.utils.Updater;
+import src.utils.Utils;
 import src.view.CurrentObjectModal;
 import src.view.Screen;
 import src.view.StatsModal;
@@ -29,45 +34,49 @@ public class Habitat {
     private Screen screen;
     private long time, periodTimer;
     private float lifetimeCar, lifetimeBike;
-    private boolean isVisibleTime, isVisibleStats;
+    private boolean isShowTime, isShowStats;
     private Emitter emitter;
     private CurrentObjectModal objectModal;
     private CarAI carAI;
     private BikeAI bikeAI;
     private Updater updater;
+    private Configuration config;
+    private String file;
 
-    private Habitat(int width, int height, float time) {
-        if (instance != null) {
-            lifetimeCar = 5f;
-            lifetimeBike = 3f;
-            periodTimer = 100;
-            updater = new Updater(periodTimer, this::updateScreen);
-            this.time = Utils.convertMinutesToMs(time);
+    private Habitat(int width, int height, float time, Configuration config) {
+        lifetimeCar = Float.parseFloat(config.getProperty(Keys.LIFE_TIME_CAR));
+        lifetimeBike = Float.parseFloat(config.getProperty(Keys.LIFE_TIME_BIKE));
+        periodTimer = 100;
+        file = "transports";
+        updater = new Updater(periodTimer, this::updateScreen);
+        this.time = Utils.convertMinutesToMs(time);
+        this.config = config;
 
-            transportList = Collections.synchronizedList(new ArrayList<>());
-            transportIds = new HashSet<>();
-            transportLifetime = new TreeMap<>();
-            objectModal = new CurrentObjectModal("Текущие объекты", createInfoObjects());
+        transportList = Collections.synchronizedList(new ArrayList<>());
+        transportIds = new HashSet<>();
+        transportLifetime = new TreeMap<>();
+        objectModal = new CurrentObjectModal("Текущие объекты", createInfoObjects());
 
-            emitter = new Emitter();
-            emitter.subscribe(Events.CONTROL, this::triggerAction);
-            emitter.subscribe(Events.MENU, this::triggerAction);
-            emitter.subscribe(Events.MODAL, this::triggerAction);
+        emitter = new Emitter();
+        emitter.subscribe(Events.CONTROL, this::triggerAction);
+        emitter.subscribe(Events.MENU, this::triggerAction);
+        emitter.subscribe(Events.MODAL, this::triggerAction);
 
-            screen = new Screen(width, height, emitter);
-            settingKeys();
-            isVisibleTime = true;
-            isVisibleStats = true;
+        screen = new Screen(width, height, emitter, config);
+        isShowTime = Boolean.parseBoolean(config.getProperty(Keys.IS_SHOW_TIME));
+        isShowStats = Boolean.parseBoolean(config.getProperty(Keys.IS_SHOW_STATS));
+        settingKeys();
 
-            carAI = new CarAI(transportList, screen.getWidthTransportsPanel());
-            bikeAI = new BikeAI(transportList, screen.getHeightTransportsPanel());
-            carAI.start();
-            bikeAI.start();
-        }
+        carAI = new CarAI(transportList, screen.getWidthTransportsPanel());
+        bikeAI = new BikeAI(transportList, screen.getHeightTransportsPanel());
+        carAI.start();
+        bikeAI.start();
     }
 
-    public static void createInstance(int width, int height, float time) {
-        instance = new Habitat(width, height, time);
+    public static void createInstance(int width, int height, float time, Configuration config) {
+        if (instance == null) {
+            instance = new Habitat(width, height, time, config);
+        }
     }
 
     public static Habitat getInstance() {
@@ -83,10 +92,10 @@ public class Habitat {
                 continueSimulation();
                 break;
             case IS_SHOW_TIME:
-                isVisibleTime = (boolean)actionControl.state;
+                isShowTime = (boolean)actionControl.state;
                 break;
             case IS_SHOW_STATS:
-                isVisibleStats = (boolean)actionControl.state;
+                isShowStats = (boolean)actionControl.state;
                 break;
             case CLEAR:
                 clear();
@@ -122,6 +131,15 @@ public class Habitat {
             case CHANGE_PRIORITY_THREAD_CAR:
                 carAI.setPriority((int)actionControl.state);
                 break;
+            case DELETE_BIKES:
+                deleteBikes((int)actionControl.state);
+                break;
+            case SAVE:
+                saveTransports();
+                break;
+            case LOAD:
+                loadTransports();
+                break;
             default: break;
         }
     }
@@ -140,8 +158,9 @@ public class Habitat {
                         emitter.notify(Events.HABITAT, Actions.CLEAR);
                         clear();
                     } else if (e.getKeyCode() == KeyEvent.VK_T) {
-                        isVisibleTime = !isVisibleTime;
-                        emitter.notify(Events.HABITAT, Actions.IS_SHOW_TIME, isVisibleTime);
+                        isShowTime = !isShowTime;
+                        emitter.notify(Events.HABITAT, Actions.IS_SHOW_TIME, isShowTime);
+                        config.setProperty(Keys.IS_SHOW_TIME, Boolean.toString(isShowTime));
                     }
                 }
                 return false;
@@ -153,8 +172,8 @@ public class Habitat {
     }
 
     public void start() {
-        startThreads();
         updater.start();
+        startThreads();
     }
 
     public void stopSimulation() {
@@ -174,11 +193,12 @@ public class Habitat {
 
         checkLifetimeAndDelete();
         spawnTransports();
+        objectModal.updateText(createInfoObjects());
 
         if (currentTime == time) {
             stopSimulation();
 
-            if (isVisibleStats) {
+            if (isShowStats) {
                 String stats = Utils.joinArray(createStatistics());
                 StatsModal modalView = new StatsModal(screen, "Статистика", stats, emitter);
             }
@@ -189,16 +209,15 @@ public class Habitat {
         float minutes = Utils.convertMsToMinutes(updater.getTime());
 
         for (int i = 0; i < transportList.size(); i++) {
-            TransportLabel canvas = transportList.get(i);
-            Transport transport = canvas.transport;
+            TransportLabel label = transportList.get(i);
+            Transport transport = label.transport;
 
             if (transport.isDead(minutes)) {
                 transportLifetime.remove(transport.getId());
                 transportIds.remove(transport.getId());
-                screen.removeTransport(canvas);
+                screen.removeTransport(label);
                 transportList.remove(i);
                 i--;
-                objectModal.updateText(createInfoObjects());
             }
         }
     }
@@ -227,7 +246,6 @@ public class Habitat {
 
                 Transport transport = transportClasses[i].createTransport(x, y, minutes, lifetimes[i]);
                 createTransportLabelAndAddToScreen(transport);
-                objectModal.updateText(createInfoObjects());
             }
         }
     }
@@ -244,15 +262,19 @@ public class Habitat {
     private void startThreads() {
         if (!carAI.isWorking) {
             carAI.isWorking = true;
-            synchronized (carAI.lock) {
-                carAI.lock.notify();
+            if (Car.isMoving) {
+                synchronized (carAI.lock) {
+                    carAI.lock.notify();
+                }
             }
         }
 
         if (!bikeAI.isWorking) {
             bikeAI.isWorking = true;
-            synchronized (bikeAI.lock) {
-                bikeAI.lock.notify();
+            if (Bike.isMoving) {
+                synchronized (bikeAI.lock) {
+                    bikeAI.lock.notify();
+                }
             }
         }
     }
@@ -290,6 +312,71 @@ public class Habitat {
         transportLifetime.clear();
         Bike.count = 0;
         Car.count = 0;
+        bikeAI.isWorking = false;
+        carAI.isWorking = false;
         screen.removeTransports();
+    }
+
+    public void deleteBikes(int percentages) {
+        int countBikes = 0;
+
+        for (int i = 0; i < transportList.size(); i++) {
+            if (transportList.get(i).transport instanceof Bike) {
+                countBikes++;
+            }
+        }
+
+        int countDelete = (int)(countBikes / 100f * percentages);
+        int totalDeleted = 0;
+
+        for (int i = 0; i < transportList.size(); i++) {
+            if (countDelete <= totalDeleted) {
+                break;
+            }
+
+            TransportLabel label = transportList.get(i);
+            Transport transport = label.transport;
+
+            if (transport instanceof Bike) {
+                transportLifetime.remove(transport.getId());
+                transportIds.remove(transport.getId());
+                screen.removeTransport(label);
+                transportList.remove(i);
+                i--;
+                totalDeleted++;
+            }
+        }
+
+        objectModal.updateText(createInfoObjects());
+        emitter.notify(Events.HABITAT, Actions.DELETE_BIKES, totalDeleted);
+    }
+
+
+    private void saveTransports() {
+        ArrayList<Transport> transports = new ArrayList();
+
+        for (int i = 0; i < transportList.size(); i++) {
+            TransportLabel label = transportList.get(i);
+            Transport transport = label.transport;
+            transport.setTimeBirth(0);
+            transports.add(transport);
+        }
+
+        Serialization.serializationObjects(transports, file);
+    }
+
+    private void loadTransports() {
+        ArrayList<Transport> transports = Serialization.deserializationObjects(file);
+        boolean isStart = updater.getTime() > 0 ? true : false;
+
+        clear();
+
+        for (int i = 0; i < transports.size(); i++) {
+            createTransportLabelAndAddToScreen(transports.get(i));
+        }
+
+        if (isStart) {
+            start();
+        }
     }
 }
