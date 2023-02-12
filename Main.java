@@ -1,11 +1,12 @@
-import Clasess.Entity.Bike;
-import Clasess.Entity.Car;
-import Clasess.Core.Habitat;
+import src.entity.transport.Bike;
+import src.entity.transport.Car;
+import src.core.Habitat;
 
 public class Main {
     public static void main(String[] args) {
-        Car.setImage("images/car.png");
-        Bike.setImage("images/bike.png");
-        Habitat habitat = new Habitat(1500, 700, 4000);
+        Car.setImage("src/images/car.png");
+        Bike.setImage("src/images/bike.png");
+
+        Habitat.createInstance(1200, 700, 5);
     }
 }
