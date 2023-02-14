@@ -17,7 +17,7 @@ import java.util.Vector;
 public class ControlPanel extends JPanel {
     private final Emitter emitter;
     private final Configuration config;
-    private JButton start, clear, currentTransports;
+    private JButton start, clear, currentTransports, swap;
     private ButtonGroup bgTime;
     private JLabel timeLabel;
     private JRadioButton showTime, hideTime;
@@ -25,7 +25,8 @@ public class ControlPanel extends JPanel {
     private JTextField timeSpawnCar, timeSpawnBike, lifetimeCar, lifetimeBike;
     private final String DEFAULT_TIME_SPAWN = "1";
     private JComboBox frequencyCar, priorityCar, priorityBike;
-    private JList frequencyBike;
+    private JList frequencyBike, clients;
+    private int selectedId;
 
     public ControlPanel(int width, int height, Emitter emitter, Configuration config) {
         super();
@@ -37,6 +38,7 @@ public class ControlPanel extends JPanel {
         emitter.subscribe(Events.HABITAT, this::triggerAction);
         emitter.subscribe(Events.MENU, this::triggerAction);
         emitter.subscribe(Events.MODAL, this::triggerAction);
+        emitter.subscribe(Events.CLIENT, this::triggerAction);
 
         this.config = config;
 
@@ -70,6 +72,13 @@ public class ControlPanel extends JPanel {
             case IS_SHOW_STATS:
                 stats.setSelected((boolean)actionControl.state);
                 break;
+            case UPDATE_IDS:
+                String state = (String)actionControl.state;
+                selectedId = 0;
+                swap.setEnabled(false);
+                clients.setSelectedIndex(-1);
+                clients.setListData(state.split(" "));
+                break;
             default: break;
         }
     }
@@ -94,9 +103,15 @@ public class ControlPanel extends JPanel {
         currentTransports.setEnabled(false);
         currentTransports.addActionListener(e -> emitter.notify(Events.CONTROL, Actions.SHOW_CURRENT_TRANSPORT));
 
+        swap = FactoryView.createButton("Обменяться", 100, 565);
+        swap.setSize(125, 50);
+        swap.setEnabled(false);
+        swap.addActionListener(e -> emitter.notify(Events.CONTROL, Actions.SELECTED_ID, selectedId));
+
         add(start);
         add(clear);
         add(currentTransports);
+        add(swap);
     }
 
     private void createRadioButtons() {
@@ -262,7 +277,20 @@ public class ControlPanel extends JPanel {
             }
         });
 
+        createDescriptionLabel("Клиенты", 20, 530);
+        clients = new JList();
+        clients.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && clients.getSelectedIndex() >= 0) {
+                selectedId = Integer.parseInt((String)clients.getSelectedValue());
+                swap.setEnabled(true);
+            }
+        });
+        JScrollPane scroll = new JScrollPane(clients);
+        scroll.setBounds(20, 550, 60, 80);
+        scroll.setBackground(null);
+
         add(frequencyBike);
+        add(scroll);
     }
 
     private void switchButton() {

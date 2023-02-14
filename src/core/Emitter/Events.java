@@ -4,5 +4,6 @@ public enum Events {
     CONTROL,
     HABITAT,
     MENU,
-    MODAL
+    MODAL,
+    CLIENT
 }

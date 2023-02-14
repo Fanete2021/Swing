@@ -22,6 +22,8 @@ public abstract class Transport implements IMovable, Serializable {
         id = Utils.generateInteger(Integer.MAX_VALUE);
     }
 
+    public abstract Transport clone();
+
     public abstract Image getImage();
 
     public void setX(int x) {
