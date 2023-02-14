@@ -1,6 +1,5 @@
 package src.core;
 
-import src.tcp.Client;
 import src.config.Configuration;
 import src.config.Keys;
 import src.core.Emitter.ActionControl;
@@ -43,9 +42,8 @@ public class Habitat {
     private Updater updater;
     private Configuration config;
     private String file;
-    private Client client;
 
-    private Habitat(int width, int height, float time, Configuration config) {
+    private Habitat(int width, int height, float time, Configuration config, Emitter emitter) {
         lifetimeCar = Float.parseFloat(config.getProperty(Keys.LIFE_TIME_CAR));
         lifetimeBike = Float.parseFloat(config.getProperty(Keys.LIFE_TIME_BIKE));
         periodTimer = 100;
@@ -59,7 +57,7 @@ public class Habitat {
         transportLifetime = new TreeMap<>();
         objectModal = new CurrentObjectModal("Текущие объекты", createInfoObjects());
 
-        emitter = new Emitter();
+        this.emitter = emitter;
         emitter.subscribe(Events.CONTROL, this::triggerAction);
         emitter.subscribe(Events.MENU, this::triggerAction);
         emitter.subscribe(Events.MODAL, this::triggerAction);
@@ -73,19 +71,11 @@ public class Habitat {
         bikeAI = new BikeAI(transportList, screen.getHeightTransportsPanel());
         carAI.start();
         bikeAI.start();
-
-        client = new Client(emitter);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                client.disconnect();
-            }
-        });
     }
 
-    public static void createInstance(int width, int height, float time, Configuration config) {
+    public static void createInstance(int width, int height, float time, Configuration config, Emitter emitter) {
         if (instance == null) {
-            instance = new Habitat(width, height, time, config);
+            instance = new Habitat(width, height, time, config, emitter);
         }
     }
 

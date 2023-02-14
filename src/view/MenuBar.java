@@ -12,7 +12,6 @@ import src.entity.transport.Transport;
 
 import javax.swing.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MenuBar extends JMenuBar {
     private Emitter emitter;

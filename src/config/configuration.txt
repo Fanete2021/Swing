@@ -1,4 +1,4 @@
-#Tue Feb 14 19:02:57 NOVT 2023
+#Tue Feb 14 19:29:47 NOVT 2023
 chanceGenerationBike=1.0
 chanceGenerationCar=1.0
 generationTimeBike=3
