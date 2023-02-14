@@ -1,8 +1,8 @@
 import src.config.Configuration;
 import src.config.Keys;
+import src.core.Habitat;
 import src.entity.transport.Bike;
 import src.entity.transport.Car;
-import src.core.Habitat;
 
 public class Main {
     public static void main(String[] args) {

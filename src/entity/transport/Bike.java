@@ -28,4 +28,8 @@ public class Bike extends Transport {
             e.printStackTrace();
         }
     }
+
+    public Bike clone() {
+        return new Bike(x, y, timeBirth, lifetime);
+    }
 }

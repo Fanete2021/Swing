@@ -1,5 +1,6 @@
 package src.utils;
 
+import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -33,11 +34,21 @@ public class Utils {
         return Float.parseFloat(str) / 100;
     }
 
-    public static String joinArray(String[] arr) {
+    public static String join(String[] arr) {
         String result = "";
 
         for (int i = 0; i < arr.length; ++i) {
             result += arr[i] + "\n";
+        }
+
+        return result;
+    }
+
+    public static <T> String join(List<T> list) {
+        String result = "";
+
+        for (int i = 0; i < list.size(); ++i) {
+            result += list.get(i) + " ";
         }
 
         return result;
@@ -48,6 +59,15 @@ public class Utils {
         int ms = (int)(time % 1000);
 
         return seconds + "." + ms / 100;
+    }
+
+    public static <T> void deleteValueInList(List<T> list, T value) {
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.get(i).equals(value)) {
+                list.remove(i);
+                break;
+            }
+        }
     }
 
     public static long convertMinutesToMs(float time) {

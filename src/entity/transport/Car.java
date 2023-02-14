@@ -28,4 +28,8 @@ public class Car extends Transport {
             e.printStackTrace();
         }
     }
+
+    public Car clone() {
+        return new Car(x, y, timeBirth, lifetime);
+    }
 }

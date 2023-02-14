@@ -1,5 +1,6 @@
 package src.core;
 
+import src.TCP.Client;
 import src.config.Configuration;
 import src.config.Keys;
 import src.core.Emitter.ActionControl;
@@ -42,6 +43,7 @@ public class Habitat {
     private Updater updater;
     private Configuration config;
     private String file;
+    private Client client;
 
     private Habitat(int width, int height, float time, Configuration config) {
         lifetimeCar = Float.parseFloat(config.getProperty(Keys.LIFE_TIME_CAR));
@@ -71,6 +73,14 @@ public class Habitat {
         bikeAI = new BikeAI(transportList, screen.getHeightTransportsPanel());
         carAI.start();
         bikeAI.start();
+
+        client = new Client(emitter);
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                client.disconnect();
+            }
+        });
     }
 
     public static void createInstance(int width, int height, float time, Configuration config) {
@@ -199,7 +209,7 @@ public class Habitat {
             stopSimulation();
 
             if (isShowStats) {
-                String stats = Utils.joinArray(createStatistics());
+                String stats = Utils.join(createStatistics());
                 StatsModal modalView = new StatsModal(screen, "Статистика", stats, emitter);
             }
         }
@@ -353,16 +363,37 @@ public class Habitat {
 
 
     private void saveTransports() {
-        ArrayList<Transport> transports = new ArrayList();
+        ArrayList<Transport> transports = cloneTransports();
+
+        Serialization.serializationObjects(transports, file);
+    }
+
+    public ArrayList<Transport> cloneTransports() {
+        ArrayList<Transport> transports = new ArrayList<>();
 
         for (int i = 0; i < transportList.size(); i++) {
             TransportLabel label = transportList.get(i);
             Transport transport = label.transport;
-            transport.setTimeBirth(0);
-            transports.add(transport);
+
+            Transport cloneTransport1 = transport.clone();
+            cloneTransport1.setTimeBirth(0);
+            transports.add(cloneTransport1);
         }
 
-        Serialization.serializationObjects(transports, file);
+        return transports;
+    }
+
+    public void loadTransports(ArrayList<Transport> list) {
+        boolean isStart = updater.getTime() > 0 ? true : false;
+        clear();
+
+        for (int i = 0; i < list.size(); i++) {
+            createTransportLabelAndAddToScreen(list.get(i));
+        }
+
+        if (isStart) {
+            start();
+        }
     }
 
     private void loadTransports() {

@@ -17,5 +17,8 @@ public enum Actions {
     CHANGE_PRIORITY_THREAD_BIKE,
     DELETE_BIKES,
     SAVE,
-    LOAD
+    LOAD,
+
+    UPDATE_IDS,
+    SELECTED_ID
 }
