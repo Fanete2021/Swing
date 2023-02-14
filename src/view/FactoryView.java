@@ -22,7 +22,7 @@ public class FactoryView {
 
         Font customFont = Font.getFont(SERIF);
         try {
-            InputStream is = FactoryView.class.getResourceAsStream("/src/fonts/Old-Soviet.otf");
+            InputStream is = FactoryView.class.getResourceAsStream("/src/resources/Old-Soviet.otf");
             customFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(sizeFont);
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(customFont);

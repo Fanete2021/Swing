@@ -6,13 +6,18 @@ import src.core.Emitter.ActionControl;
 import src.core.Emitter.Actions;
 import src.core.Emitter.Emitter;
 import src.core.Emitter.Events;
+import src.core.Habitat;
+import src.data.SqlWorker;
+import src.entity.transport.Transport;
 
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class MenuBar extends JMenuBar {
     private Emitter emitter;
     private Configuration config;
-    private JMenuItem start, clear, call, save, load;
+    private JMenuItem start, clear, call, saveFile, loadFile;
+    private JMenuItem saveCars, saveBikes, loadCars, loadBikes;
     private JCheckBoxMenuItem time, stats;
     private Console console;
 
@@ -21,7 +26,31 @@ public class MenuBar extends JMenuBar {
         emitter.subscribe(Events.CONTROL, this::triggerAction);
         emitter.subscribe(Events.HABITAT, this::triggerAction);
         emitter.subscribe(Events.MODAL, this::triggerAction);
+        this.config = config;
 
+        createActionsMenu();
+        createConsoleMenu();
+        createFileMenu();
+        createDatabaseMenu();
+    }
+
+    private void triggerAction(ActionControl actionControl) {
+        switch (actionControl.action) {
+            case CLEAR:
+            case START:
+                switchButton();
+                break;
+            case IS_SHOW_TIME:
+                time.setSelected((boolean) actionControl.state);
+                break;
+            case IS_SHOW_STATS:
+                stats.setSelected((boolean)actionControl.state);
+                break;
+            default: break;
+        }
+    }
+
+    private void createActionsMenu() {
         JMenu actions = new JMenu("Действия");
 
         start = new JMenuItem("Старт");
@@ -51,6 +80,15 @@ public class MenuBar extends JMenuBar {
         });
         stats.setSelected(Boolean.parseBoolean(config.getProperty(Keys.IS_SHOW_STATS)));
 
+        actions.add(start);
+        actions.add(clear);
+        actions.add(time);
+        actions.add(stats);
+
+        add(actions);
+    }
+
+    private void createConsoleMenu() {
         console = new Console(emitter);
 
         JMenu consoleMenu = new JMenu("Консоль");
@@ -58,43 +96,65 @@ public class MenuBar extends JMenuBar {
         call = new JMenuItem("Вызвать");
         call.addActionListener(e -> console.setVisible(true));
 
-        JMenu file = new JMenu("Файл");
-
-        save = new JMenuItem("Сохранить");
-        save.addActionListener(e -> emitter.notify(Events.MENU, Actions.SAVE));
-
-        load = new JMenuItem("Загрузить");
-        load.addActionListener(e -> emitter.notify(Events.MENU, Actions.LOAD));
-
-        actions.add(start);
-        actions.add(clear);
-        actions.add(time);
-        actions.add(stats);
-
         consoleMenu.add(call);
 
-        file.add(save);
-        file.add(load);
-
-        add(actions);
         add(consoleMenu);
+    }
+
+    private void createFileMenu() {
+        JMenu file = new JMenu("Файл");
+
+        saveFile = new JMenuItem("Сохранить");
+        saveFile.addActionListener(e -> emitter.notify(Events.MENU, Actions.SAVE));
+
+        loadFile = new JMenuItem("Загрузить");
+        loadFile.addActionListener(e -> emitter.notify(Events.MENU, Actions.LOAD));
+
+
+        file.add(saveFile);
+        file.add(loadFile);
+
         add(file);
     }
 
-    private void triggerAction(ActionControl actionControl) {
-        switch (actionControl.action) {
-            case CLEAR:
-            case START:
-                switchButton();
-                break;
-            case IS_SHOW_TIME:
-                time.setSelected((boolean) actionControl.state);
-                break;
-            case IS_SHOW_STATS:
-                stats.setSelected((boolean)actionControl.state);
-                break;
-            default: break;
-        }
+    private void createDatabaseMenu() {
+        JMenu database = new JMenu("База данных");
+        JMenu save = new JMenu("Сохранить");
+        JMenu load = new JMenu("Загрузить");
+
+        saveCars = new JMenuItem("машины");
+        saveCars.addActionListener(e -> {
+            ArrayList<Transport> list = Habitat.getInstance().cloneTransports();;
+            SqlWorker.save(list,"Car");
+        });
+
+        saveBikes = new JMenuItem("мотоциклы");
+        saveBikes.addActionListener(e -> {
+            ArrayList<Transport> list = Habitat.getInstance().cloneTransports();;
+            SqlWorker.save(list,"Bike");
+        });
+
+        loadCars = new JMenuItem("машины");
+        loadCars.addActionListener(e -> {
+            ArrayList<Transport> list = SqlWorker.load("Car");
+            Habitat.getInstance().loadTransports(list);
+        });
+
+        loadBikes = new JMenuItem("мотоциклы");
+        loadBikes.addActionListener(e -> {
+            ArrayList<Transport> list = SqlWorker.load("Bike");
+            Habitat.getInstance().loadTransports(list);
+        });
+
+        save.add(saveCars);
+        save.add(saveBikes);
+        load.add(loadCars);
+        load.add(loadBikes);
+
+        database.add(save);
+        database.add(load);
+
+        add(database);
     }
 
     private void switchButton() {

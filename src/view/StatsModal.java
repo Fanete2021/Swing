@@ -1,6 +1,5 @@
 package src.view;
 
-import src.core.Emitter.ActionControl;
 import src.core.Emitter.Actions;
 import src.core.Emitter.Emitter;
 import src.core.Emitter.Events;

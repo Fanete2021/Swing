@@ -1,10 +1,5 @@
 package src.entity.transport;
 
-
-import src.entity.transport.Bike;
-import src.entity.transport.Car;
-import src.entity.transport.Transport;
-
 public class TransportFactory {
     public interface ITransportFactory {
         Transport createTransport(int x, int y, float timeBirth, float lifetime);

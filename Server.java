@@ -1,5 +1,3 @@
-package src.TCP;
-
 import src.entity.transport.Transport;
 
 import java.io.*;

@@ -1,6 +1,5 @@
 package src.entity.transport;
 
-
 import src.utils.Utils;
 
 import java.awt.*;
