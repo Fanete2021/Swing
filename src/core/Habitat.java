@@ -1,6 +1,6 @@
 package src.core;
 
-import src.TCP.Client;
+import src.tcp.Client;
 import src.config.Configuration;
 import src.config.Keys;
 import src.core.Emitter.ActionControl;

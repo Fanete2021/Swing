@@ -1,20 +1,20 @@
 import src.config.Configuration;
 import src.config.Keys;
-import src.core.Habitat;
 import src.entity.transport.Bike;
 import src.entity.transport.Car;
+import src.core.Habitat;
 
 public class Main {
     public static void main(String[] args) {
         Configuration config = new Configuration();
         initSetup(config);
 
-        Habitat.createInstance(1200, 700, 5, config);
+        Habitat.createInstance(1200, 700, 50, config);
     }
 
     public static void initSetup(Configuration config) {
-        Car.setImage("src/images/car.png");
-        Bike.setImage("src/images/bike.png");
+        Car.setImage("src/resources/car.png");
+        Bike.setImage("src/resources/bike.png");
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

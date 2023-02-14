@@ -1,4 +1,4 @@
-package src.TCP;
+package src.tcp;
 
 import src.entity.transport.Transport;
 

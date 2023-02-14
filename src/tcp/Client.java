@@ -1,4 +1,4 @@
-package src.TCP;
+package src.tcp;
 
 import src.core.Emitter.ActionControl;
 import src.core.Emitter.Actions;
@@ -13,7 +13,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 
 public class Client implements Runnable {
     private Socket server = null;

@@ -15,7 +15,7 @@ public class TransportsPanel extends JPanel {
         setLayout(null);
         transportsLabels = new ArrayList<>();
 
-        URL imageURL = getClass().getResource("/src/images/road.png");
+        URL imageURL = getClass().getResource("/src/resources/road.png");
         Image backgroundImage = new ImageIcon(imageURL).getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
         JLabel roadLabel = new JLabel(new ImageIcon(backgroundImage));
         roadLabel.setBounds(0, 0, width, height);
